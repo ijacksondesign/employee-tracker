@@ -1,0 +1,29 @@
+{
+  "name": "employee-tracker",
+  "version": "1.0.0",
+  "description": "Command line employee tracker application",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "migrate": "mysql -u root -p < db/schema.sql",
+    "seed": "mysql -u root -p employees_db < db/seeds.sql",
+    "db": "mysql -u root -p employees_db",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ijacksondesign/employee-tracker.git"
+  },
+  "author": "Ian Jackson",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ijacksondesign/employee-tracker/issues"
+  },
+  "homepage": "https://github.com/ijacksondesign/employee-tracker#readme",
+  "dependencies": {
+    "console.table": "^0.10.0",
+    "express": "^4.17.1",
+    "inquirer": "^8.0.0",
+    "mysql2": "^2.2.5"
+  }
+}
