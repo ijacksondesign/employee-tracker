@@ -8,7 +8,7 @@ DROP TABLE IF EXISTS `employees`;
 
 CREATE TABLE `departments` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(30) NOT NULL,
+  `department` varchar(30) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`)
 );
