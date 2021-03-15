@@ -23,7 +23,7 @@ getTasks = () => {
         type: 'list',
         name: 'todo',
         message: 'What would you like to do?',
-        choices: ['View all Departments', 'View all Roles', 'View all Employees', 'Add Department', 'Add Role', 'Add Employee', 'Update Employee Role']
+        choices: ['View all Departments', 'View all Roles', 'View all Employees', 'Add Department', 'Add Role', 'Add Employee', 'Update Employee Role', 'Close Program']
     })
         .then(answer => {
             if (answer.todo === 'View all Departments') {
@@ -43,6 +43,13 @@ getTasks = () => {
             }
             if (answer.todo === 'Add Employee') {
                 addEmployee();
+            }
+            if (answer.todo === 'Update Employee Role') {
+                updateEmployee();
+            }
+            if (answer.todo === 'Close Program') {
+                console.log('Good bye!');
+                connection.end();
             }
         })
 };
@@ -149,45 +156,97 @@ addEmployee = () => {
     inquirer.prompt([
         {
             type: 'input',
-            name: 'newRole',
-            message: 'Enter name of the new role.',
-            validate: roleInput => {
-                if (roleInput) {
+            name: 'firstName',
+            message: "Enter employee's first name.",
+            validate: nameInput => {
+                if (nameInput) {
                     return true;
                 }
                 else {
-                    console.log('You must enter a name for the new role.')
+                    console.log('You must enter a first name.')
                     return false;
                 }
             }
         },
         {
             type: 'input',
-            name: 'newRoleSal',
-            message: 'Enter salary for the new role.',
-            validate: salaryInput => {
-                if (salaryInput) {
+            name: 'lastName',
+            message: "Enter employee's last name.",
+            validate: nameInput => {
+                if (nameInput) {
                     return true;
                 }
                 else {
-                    console.log('You must enter a salary amount.')
+                    console.log('You must enter a last name.')
                     return false;
                 }
             }
         },
         {
             type: 'list',
-            name: 'newRoleDept',
-            message: 'Which department will this role work in?',
-            choices: ['1: Marketing', '2: Art', '3: Sales', '4: Human Resources']
+            name: 'role',
+            message: 'What is their role?',
+            choices: ['1: Analyst', '2: Social Media', '3: Coordinator', '4: Designer', '5: Manager', '6: Copy Writer', '7: UX/UI', '8: Accountant', '9: Inter', '10: Recruiter', '11: Representative', '12: Assistant']
+        },
+        {
+            type: 'confirm',
+            name: 'confirmManager',
+            message: 'Do they have manager?',
+            default: true
+        },
+        {
+            type: 'list',
+            name: 'manager',
+            message: 'Who is their manager?',
+            choices: ['Peter Greenaway', 'Samuel Johnson'],
+            when: ({ confirmManager }) => {
+                if (confirmManager) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
         }
     ])
         .then(results => {
-            let roleDept = results.newRoleDept.split(':');
-            connection.query('INSERT INTO roles SET ?', { title: results.newRole, salary: results.newRoleSal, department_id: roleDept[0] }, function (err, res) {
+            let role = results.role.split(':');
+            connection.query('INSERT INTO employees SET ?', { first_name: results.firstName, last_name: results.lastName, role_id: role[0] }, function (err, res) {
                 if (err) throw err;
-                console.log(results.newRole + ' added to roles!\n');
+                console.log(results.firstName + ' ' + results.lastName + ' was added to employees!\n');
                 getTasks();
             })
         })
+};
+
+updateEmployee = () => {
+    connection.query('SELECT id, first_name, last_name FROM employees', function (err, res) {
+        if (err) throw err;
+        let employees = JSON.parse(JSON.stringify(res))
+        employees = employees.map(employee => employee.id + ': ' + employee.first_name + ' ' + employee.last_name);
+
+        inquirer.prompt([
+            {
+                type: 'list',
+                name: 'employee',
+                message: "Which employee do you want to update?",
+                choices: employees
+            },
+            {
+                type: 'list',
+                name: 'role',
+                message: 'What is their role?',
+                choices: ['1: Analyst', '2: Social Media', '3: Coordinator', '4: Designer', '5: Manager', '6: Copy Writer', '7: UX/UI', '8: Accountant', '9: Inter', '10: Recruiter', '11: Representative', '12: Assistant']
+            }
+        ])
+            .then(results => {
+                let employee = results.employee.split(':');
+                let role = results.role.split(':');
+                connection.query('UPDATE employees SET ? WHERE ?', [{ role_id: role[0] }, { id: employee[0] }], function (err, res) {
+                    if (err) throw err;
+                    console.log(employee[1] + "'s role was updated to " + role[1] + '\n');
+                    getTasks();
+                })
+            })
+    })
 };
